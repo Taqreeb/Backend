@@ -10,5 +10,5 @@ app.use(require('./router/auth'));
 const User = require('./model/userSchema');
 
 app.listen(PORT, () => {
-  console.log('server up at', PORT);
+  console.log('server up at localhost', PORT);
 });
