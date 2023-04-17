@@ -1,14 +1,11 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-dotenv.config({ path: 'config.env' });
-const PORT = process.env.PORT;
-const app = express();
-require('./database/connection');
-app.use(express.json());
-app.use(require('./router/auth'));
-const User = require('./model/userSchema');
+//Import
+const http = require('http');
+const app = require('./app');
+const server = http.createServer(app);
+const env = require("dotenv");
+env.config({ path: 'config.env' });
+const PORT = process.env.port;
 
-app.listen(PORT, () => {
-  console.log('server up at localhost', PORT);
-});
+server.listen(PORT, () => {
+    console.log("server up at localhost" + " " + PORT);
+  });
