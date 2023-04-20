@@ -19,12 +19,12 @@ const passwordValidation = [
 
 const profilePictureValidation = [
   body('profile_picture').custom((value,{req})=>{
-    if(req.file.mimetype==='image/jpeg' || req.file.mimetype==='image/png'){
+    if(req.file.mimetype==='image/jpeg' || req.file.mimetype==='image/png' || req.file.mimetype==='image/jpg'){
       return true;
     }
     else{
       return false;
     }
-}).withMessage('Please upload an image type of PNG or JPG')
+}).withMessage('Please upload an image type of PNG or JPEG/JPG')
 ]
 module.exports = {loginValidation,emailValidation,profilePictureValidation,passwordValidation}

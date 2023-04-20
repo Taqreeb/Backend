@@ -44,6 +44,7 @@ const updateVendorPassword = async (req, res) => {
   try{
   const userId = req.userId;
   const { oldPassword, newPassword } = req.body;
+
   // Retrieve the vendor from the database
   const vendor = await User.findById(userId);
   if (!vendor) {
@@ -65,7 +66,7 @@ const updateVendorPassword = async (req, res) => {
   vendor.Password = hashedPassword;
   await vendor.save();
 
-  return res.json({ message: 'Password updated successfully',data:vendor });
+  return res.json({match:true, message: 'Password updated successfully',data:vendor });
 } catch (error) {
   console.error(error);
   return res.status(500).json({ error: 'Internal server error' });

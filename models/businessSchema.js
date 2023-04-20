@@ -53,9 +53,11 @@ const businessSchema = new mongoose.Schema({
   venue_coverage_area: {
     type: String,
   },
-  booked_dates: [{
-    type: Date
-  }],
+  booked_dates: [
+    {
+      type: Date,
+    },
+  ],
   business_packages: {
     type: [
       {
@@ -78,19 +80,27 @@ const businessSchema = new mongoose.Schema({
 
   business_facebook_url: {
     type: String,
-    default:'www.facebook.com'
+    default: "www.facebook.com",
   },
   business_instagram_url: {
     type: String,
-    default:'www.instagram.com'
+    default: "www.instagram.com",
   },
   business_youtube_url: {
     type: String,
-    default:'www.youtube.com'
+    default: "www.youtube.com",
+  },
+  business_display_picture:{
+    type: String,
+    required:true
   },
   business_albums: {
     type: [
       {
+        album_id: {
+          type: Number,
+        },
+
         name: {
           type: String,
         },

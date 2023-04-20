@@ -13,5 +13,5 @@ router.put('/updatePassword',Validation.passwordValidation,isAuthenticatedUser, 
 router.put('/updateFirstName',isAuthenticatedUser, isAuthorizedUser('vendor'),vendorController.updateVendorFirstName);
 router.put('/updateLastName',isAuthenticatedUser, isAuthorizedUser('vendor'),vendorController.updateVendorLastName);
 router.put('/updatePhone',isAuthenticatedUser, isAuthorizedUser('vendor'),vendorController.updateVendorPhoneNo);
-router.put('/updateProfilePicture',Validation.profilePictureValidation,isAuthenticatedUser, isAuthorizedUser('vendor'),vendorController.updateVendorProfilePicture);
+router.put('/updateProfilePicture',isAuthenticatedUser, isAuthorizedUser('vendor'),vendorController.updateVendorProfilePicture);
 module.exports = router;

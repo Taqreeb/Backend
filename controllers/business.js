@@ -18,6 +18,7 @@ const addBusiness = async (req, res) => {
       business_youtube_url,
       business_packages,
       business_albums,
+      business_display_picture,
       booked_dates,
     } = req.body;
 
@@ -27,6 +28,7 @@ const addBusiness = async (req, res) => {
       !business_location ||
       !business_address ||
       !estimated_price ||
+      !business_display_picture||
       !booked_dates
     ) {
       return res.status(422).json({ error: "Please add the required fields" });
@@ -55,6 +57,7 @@ const addBusiness = async (req, res) => {
         business_address: business_address,
         business_packages: business_packages,
         business_albums: business_albums,
+        business_display_picture: business_display_picture,
         booked_dates: booked_dates,
       });
       await business.save();
@@ -74,6 +77,7 @@ const addBusiness = async (req, res) => {
         business_youtube_url: business_youtube_url,
         business_packages: business_packages,
         business_albums: business_albums,
+        business_display_picture:business_display_picture,
         booked_dates: booked_dates,
       });
       await business.save();
@@ -133,6 +137,7 @@ const UpdateSpecificBusiness = async (req, res) => {
     business.estimated_price = req.body.estimated_price || business.estimated_price
     business.venue_coverage_area = req.body.venue_coverage_area || business.venue_coverage_area,
     business.venue_persons_capacity = req.body.venue_persons_capacity || business.venue_persons_capacity
+    business.business_display_picture = req.body.business_display_picture || business.business_display_picture
 
     const updatedBusiness = await business.save();
     return res.status(200).json(updatedBusiness);
@@ -149,6 +154,7 @@ const UpdateSpecificBusiness = async (req, res) => {
       business.business_email = req.body.business_email || business.business_email,
       business.business_phone_number = req.body.business_phone_number || business.business_phone_number
       business.estimated_price = req.body.estimated_price || business.estimated_price
+      business.business_display_picture = req.body.business_display_picture || business.business_display_picture
       
       const updatedBusiness = await business.save();
       return res.status(200).json(updatedBusiness);

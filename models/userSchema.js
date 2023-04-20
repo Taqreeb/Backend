@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema(
     },
     profile_picture: {
       type: String,
+      default:"https://via.placeholder.com/150",
     },
   },
   { timestamps: true }

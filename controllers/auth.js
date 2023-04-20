@@ -11,16 +11,18 @@ const signup = async (req, res) => {
     if (!FirstName || !LastName || !Email || !PhoneNo || !Password || !role) {
       return res.status(422).json({ error: "Please fill all the fields" });
     }
-    if(role ==='admin'){
-      return res.status(500).json({ error: 'Cannot create admin' });
+    if (role === "admin") {
+      return res.status(500).json({ error: "Cannot create admin" });
     }
-    
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    if(!(role==='user' || role==='vendor') ){
-      return res.status(500).json({ error: 'We can only cater user and vendor roles' });
+    if (!(role === "user" || role === "vendor")) {
+      return res
+        .status(500)
+        .json({ error: "We can only cater user and vendor roles" });
     }
     const userExist = await User.findOne({ Email: Email });
     if (userExist) {
@@ -49,7 +51,6 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { Email, Password } = req.body;
-
     if (!Email || !Password) {
       return res.status(422).json({ Error: "Please fill all the fields" });
     }
@@ -71,15 +72,17 @@ const login = async (req, res) => {
             expiresIn: "2h",
           }
         );
+
         res.status(201).send({
+          authtoken,
           Status: "User login successfully",
           Email: Email,
           role: userLogin.role,
-          tokens: authtoken,
+          profile_picture: userLogin.profile_picture
         });
       }
     } else {
-      res.status(400).json({ Error: "User is not registered" });
+      res.status(400).json({ Error: "Invalid Credentials" });
     }
   } catch (error) {
     console.log(error);

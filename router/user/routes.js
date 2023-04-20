@@ -13,6 +13,6 @@ router.put('/updatePassword',Validation.passwordValidation,isAuthenticatedUser, 
 router.put('/updateFirstName',isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserFirstName);
 router.put('/updateLastName',isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserLastName);
 router.put('/updatePhone',isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserPhoneNo);
-router.put('/updateProfilePicture',Validation.profilePictureValidation,isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserProfilePicture);
+router.put('/updateProfilePicture',isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserProfilePicture);
 
 module.exports = router;
