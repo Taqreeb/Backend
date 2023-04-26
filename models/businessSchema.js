@@ -11,6 +11,9 @@ const businessSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  business_description:{
+    type: String,
+  },
   business_phone_number: {
     type: String,
     required: true,
@@ -48,14 +51,14 @@ const businessSchema = new mongoose.Schema({
     required: true,
   },
   venue_persons_capacity: {
-    type: String,
+    type: Number,
   },
   venue_coverage_area: {
-    type: String,
+    type: Number,
   },
   booked_dates: [
     {
-      type: Date,
+      type: String,
     },
   ],
   business_packages: {
@@ -65,43 +68,31 @@ const businessSchema = new mongoose.Schema({
           type: String,
           required: true,
         },
-        description: {
-          type: String,
-          required: true,
-        },
         price: {
-          type: String,
+          type: Number,
           required: true,
         },
       },
     ],
-    default: null,
   },
 
   business_facebook_url: {
     type: String,
-    default: "www.facebook.com",
   },
   business_instagram_url: {
     type: String,
-    default: "www.instagram.com",
   },
   business_youtube_url: {
     type: String,
-    default: "www.youtube.com",
   },
-  business_display_picture:{
+  business_display_picture: {
     type: String,
-    required:true
+    required: true,
   },
   business_albums: {
     type: [
       {
-        album_id: {
-          type: Number,
-        },
-
-        name: {
+        album_name: {
           type: String,
         },
         description: {
@@ -109,7 +100,16 @@ const businessSchema = new mongoose.Schema({
         },
         images: [
           {
-            type: String,
+          
+            public_id:{
+              type:String,
+              required:true
+            },
+            url:{
+              type:String,
+              required:true
+            }
+       
           },
         ],
       },
@@ -118,12 +118,12 @@ const businessSchema = new mongoose.Schema({
   },
 });
 
-businessSchema.methods.updateReviewStats = () => {
+businessSchema.methods.updateReviewStats = async function() {
   const businessId = this._id;
   const Review = mongoose.model("Review");
 
-  return Review.aggregate([
-    { $match: { business: businessId } },
+  const result = await Review.aggregate([
+    { $match: { business_id: businessId } },
     {
       $group: {
         _id: null,
@@ -131,22 +131,17 @@ businessSchema.methods.updateReviewStats = () => {
         count: { $sum: 1 },
       },
     },
-  ])
-    .then((result) => {
-      if (result.length > 0) {
-        this.numOfReviews = result[0].count;
-        this.averageRating = result[0].totalRating / result[0].count;
-      } else {
-        this.numOfReviews = 0;
-        this.averageRating = 0;
-      }
+  ]);
 
-      return this.save();
-    })
-    .catch((err) => {
-      throw err;
-    });
+  if (result.length > 0) {
+    this.numOfReviews = result[0].count;
+    this.rating = result[0].totalRating / result[0].count;
+  } else {
+    this.numOfReviews = 0;
+    this.rating = 0;
+  }
+
+  return this.save();
 };
-
 const Business = mongoose.model("Business", businessSchema);
 module.exports = Business;

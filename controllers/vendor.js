@@ -1,4 +1,5 @@
 const User = require("../models/userSchema");
+const Business = require("../models/businessSchema");
 const bcrypt = require('bcryptjs');
 const { validationResult } = require("express-validator");
 
@@ -177,6 +178,24 @@ const updateVendorProfilePicture = async (req, res) => {
   }
 };
 
+const getApprovedBusinesses=async (req, res) => {
+  try {
+    const approvedBusinesses = await Business.find({business_status:"approved"})
+    res.status(200).json({approvedBusinesses,success:true});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+const getPendingBusinesses=async (req, res) => {
+  try {
+    const pendingBusinesses = await Business.find({business_status:"pending"})
+    res.status(200).json({pendingBusinesses,success:true});
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   profile,
   updateVendorEmail,
@@ -185,4 +204,6 @@ module.exports = {
   updateVendorLastName,
   updateVendorPhoneNo,
   updateVendorProfilePicture,
+  getApprovedBusinesses,
+  getPendingBusinesses,
 };

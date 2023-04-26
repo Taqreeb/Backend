@@ -1,4 +1,4 @@
-
+const User = require('../models/userSchema');
 const Business = require('../models/businessSchema');
 
 
@@ -10,7 +10,7 @@ const getAllBusiness=async (req, res) => {
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
-  }
+}
 const updateBusinessStatus = async(req,res)=>{
  try {
     const businessId = req.params.id;
@@ -28,7 +28,7 @@ const updateBusinessStatus = async(req,res)=>{
     const updatedBusiness = await business.save();
 
     // Return the updated business document in the response to the client
-    res.status(200).json({updatedBusiness,message: 'status updated succesfully'});
+    res.status(200).json({updatedBusiness,message: 'status updated succesfully',success:true});
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -37,8 +37,8 @@ const updateBusinessStatus = async(req,res)=>{
 const profile = async (req, res) => {
   try{
     const adminId = req.userId;
-    const admin = await User.findById(adminId)
-    res.status(200).send(admin)
+    const user = await User.findById(adminId)
+    res.status(200).send(user)
   } catch(error){
     res.status(500).send("Internal Server Error")
   }
@@ -47,7 +47,7 @@ const profile = async (req, res) => {
 
 const updateAdminEmail = async (req, res) => {
   try {
-    const adminId = req.userId;
+    const userId = req.userId;
     const Email = req.body.Email;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -59,14 +59,14 @@ const updateAdminEmail = async (req, res) => {
         .status(400)
         .json({ error: "This Email Address is already registered" });
     }
-    const admin = await User.findByIdAndUpdate(
-      adminId,
+    const user = await User.findByIdAndUpdate(
+      userId,
       { Email },
       {
         new: true,
       }
     );
-    res.json({ admin, message: "Email updated successfully" });
+    res.json({ user, message: "Email updated successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to update email" });
   }
@@ -74,17 +74,17 @@ const updateAdminEmail = async (req, res) => {
 
 const updateAdminPassword = async (req, res) => {
   try {
-    const adminId = req.userId;
+    const userId = req.userId;
     const { oldPassword, newPassword } = req.body;
    
     // Retrieve the admin from the database
-    const admin = await User.findById(adminId);
-    if (!admin) {
+    const user = await User.findById(userId);
+    if (!user) {
       return res.status(404).json({ error: 'Admin not found' });
     }
 
     // Verify old password
-    const isPasswordValid = await bcrypt.compare(oldPassword, admin.Password);
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.Password);
     if (!isPasswordValid) {
       return res.status(401).json({ error: 'Invalid password' });
     }
@@ -95,9 +95,9 @@ const updateAdminPassword = async (req, res) => {
     // Update password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
-    admin.Password = hashedPassword;
-    await admin.save();
-    return res.json({message: 'Password updated successfully',data:admin });
+    user.Password = hashedPassword;
+    await user.save();
+    return res.json({message: 'Password updated successfully', user });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ error: 'Internal server error' });
@@ -106,7 +106,7 @@ const updateAdminPassword = async (req, res) => {
 
 const updateAdminFirstName = async (req, res) => {
   try {
-    const adminId = req.userId;
+    const userId = req.userId;
     const FirstName = req.body.FirstName;
     if (!FirstName) {
       return res.json({ error: "Please enter first name" });
@@ -115,17 +115,17 @@ const updateAdminFirstName = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const admin = await User.findByIdAndUpdate(
-      adminId,
+    const user = await User.findByIdAndUpdate(
+      userId,
       { FirstName },
       {
         new: true,
       }
     );
-    if (!admin) {
+    if (!user) {
       return res.status(404).json({ error: "Admin not found" });
     }
-    res.json({ admin, message: "First Name updated successfully" });
+    res.json({user, message: "First Name updated successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to update first name" });
   }
@@ -133,7 +133,7 @@ const updateAdminFirstName = async (req, res) => {
 
 const updateAdminLastName = async (req, res) => {
   try {
-    const adminId = req.userId;
+    const userId = req.userId;
     const LastName = req.body.LastName;
     if (!LastName) {
       return res.json({ error: "Please Enter Last Name" });
@@ -142,8 +142,8 @@ const updateAdminLastName = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const admin = await User.findByIdAndUpdate(adminId, { LastName });
-    if (!admin) {
+    const user = await User.findByIdAndUpdate(userId, { LastName });
+    if (!user) {
       return res.status(404).json(
         { error: "Admin not found" },
         {
@@ -151,7 +151,7 @@ const updateAdminLastName = async (req, res) => {
         }
       );
     }
-    res.json({ admin, message: "Last Name updated successfully" });
+    res.json({ user, message: "Last Name updated successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to update last name" });
   }
@@ -159,7 +159,7 @@ const updateAdminLastName = async (req, res) => {
 
 const updateAdminPhoneNo = async (req, res) => {
   try {
-    const adminId = req.userId;
+    const userId = req.userId;
     const PhoneNo = req.body.PhoneNo;
     if (!PhoneNo) {
       return res.json({ error: "Please enter phone number" });
@@ -168,17 +168,17 @@ const updateAdminPhoneNo = async (req, res) => {
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const admin = await User.findByIdAndUpdate(
-      adminId,
+    const user = await User.findByIdAndUpdate(
+      userId,
       { PhoneNo },
       {
         new: true,
       }
     );
-    if (!admin) {
+    if (!user) {
       return res.status(404).json({ error: "Admin not found" });
     }
-    res.json({ admin, message: "Phone number updated successfully" });
+    res.json({  user, message: "Phone number updated successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to update phone number" });
   }
@@ -186,23 +186,23 @@ const updateAdminPhoneNo = async (req, res) => {
 
 const updateAdminProfilePicture = async (req, res) => {
   try {
-    const adminId = req.userId;
+    const userId = req.userId;
     const profile_picture = req.body.profile_picture;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    const admin = await User.findByIdAndUpdate(
-      adminId,
+    const user = await User.findByIdAndUpdate(
+      userId,
       { profile_picture },
       {
         new: true,
       }
     );
-    if (!admin) {
+    if (!user) {
       return res.status(404).json({ error: "Admin not found" });
     }
-    res.json({ admin, message: "profile picture updated successfully" });
+    res.json({user, message: "profile picture updated successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to update profile picture" });
   }

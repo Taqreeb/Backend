@@ -24,6 +24,7 @@ app.use('/user', user);
 app.use('/user', review);
 app.use('/vendor', vendor);
 app.use('/vendor', business);
+app.use('/admin', admin);
 
 app.get('/',(req,res) => {
   res.send("Welcome To Taqreeb");

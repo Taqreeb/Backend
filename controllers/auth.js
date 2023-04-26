@@ -40,7 +40,7 @@ const signup = async (req, res) => {
         Password: secPass,
         role: role,
       });
-      res.status(201).json(user);
+      res.status(201).json({user,success:true});
     }
   } catch (error) {
     console.log(error);
@@ -69,11 +69,12 @@ const login = async (req, res) => {
           { _id: userLogin._id },
           process.env.SECRET_KEY,
           {
-            expiresIn: "2h",
+            expiresIn: "24h",
           }
         );
 
         res.status(201).send({
+          id: userLogin._id,
           authtoken,
           Status: "User login successfully",
           Email: Email,

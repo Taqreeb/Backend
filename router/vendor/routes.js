@@ -14,4 +14,8 @@ router.put('/updateFirstName',isAuthenticatedUser, isAuthorizedUser('vendor'),ve
 router.put('/updateLastName',isAuthenticatedUser, isAuthorizedUser('vendor'),vendorController.updateVendorLastName);
 router.put('/updatePhone',isAuthenticatedUser, isAuthorizedUser('vendor'),vendorController.updateVendorPhoneNo);
 router.put('/updateProfilePicture',isAuthenticatedUser, isAuthorizedUser('vendor'),vendorController.updateVendorProfilePicture);
+
+router.get('/approvedbusinesses',vendorController.getApprovedBusinesses);
+router.get('/pendingbusinesses',vendorController.getPendingBusinesses);
 module.exports = router;
+
