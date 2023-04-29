@@ -11,6 +11,15 @@ const emailValidation = [
   
  
 ];
+
+const phoneValidation = [
+  body("phoneNumber")
+    .isMobilePhone("en-PK", {
+      strictMode: true,
+      message: "Please enter a valid Pakistani phone number",
+    })
+];
+
 const passwordValidation = [
   body("newPassword", "Password must be atleast 8 characters long").isLength({
     min: 8,
@@ -27,4 +36,4 @@ const profilePictureValidation = [
     }
 }).withMessage('Please upload an image type of PNG or JPEG/JPG')
 ]
-module.exports = {loginValidation,emailValidation,profilePictureValidation,passwordValidation}
+module.exports = {loginValidation,emailValidation,profilePictureValidation,passwordValidation,phoneValidation}

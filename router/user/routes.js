@@ -12,7 +12,7 @@ router.put('/updateEmail',Validation.emailValidation,isAuthenticatedUser, isAuth
 router.put('/updatePassword',Validation.passwordValidation,isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserPassword);
 router.put('/updateFirstName',isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserFirstName);
 router.put('/updateLastName',isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserLastName);
-router.put('/updatePhone',isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserPhoneNo);
+router.put('/updatePhone',isAuthenticatedUser,Validation.phoneValidation, isAuthorizedUser('user'),userController.updateUserPhoneNo);
 router.put('/updateProfilePicture',isAuthenticatedUser, isAuthorizedUser('user'),userController.updateUserProfilePicture);
 
 module.exports = router;

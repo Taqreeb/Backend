@@ -13,6 +13,7 @@ const businessSchema = new mongoose.Schema({
   },
   business_description:{
     type: String,
+    required:true
   },
   business_phone_number: {
     type: String,
