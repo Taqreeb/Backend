@@ -13,6 +13,7 @@ const cor = require('./corshandler')
 
 require('./db/conn');
 app.use(cookieParser())
+app.use(cor);
 app.use(cors({
   origin: '*',
   credentials: true,
