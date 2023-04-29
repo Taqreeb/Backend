@@ -26,7 +26,7 @@ app.use('/vendor', vendor);
 app.use('/vendor', business);
 app.use('/admin', admin);
 
-app.get('https://backend-kxtxcvk7v-taqree.vercel.app',(req,res) => {
+app.get('/',(req,res) => {
   res.send("Welcome To Taqreeb");
 });
 
