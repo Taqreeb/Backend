@@ -14,7 +14,7 @@ const bodyParser = require('body-parser')
 require('./db/conn');
 app.use(cookieParser())
 app.use(cors());
-app.options('*', cors())
+// app.options('*', cors())
 app.use(bodyParser.json({limit: '50mb'}));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
