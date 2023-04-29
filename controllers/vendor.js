@@ -179,6 +179,7 @@ const updateVendorProfilePicture = async (req, res) => {
 };
 
 const getApprovedBusinesses=async (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
   try {
     const approvedBusinesses = await Business.find({business_status:"approved"})
     res.status(200).json({approvedBusinesses,success:true});
