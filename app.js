@@ -9,7 +9,7 @@ const auth=require('./router/auth/routes')
 const business=require('./router/business/routes')
 const review=require('./router/reviews/routes')
 const bodyParser = require('body-parser')
-
+const cor = require('./corshandler')
 
 require('./db/conn');
 app.use(cookieParser())
