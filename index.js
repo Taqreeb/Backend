@@ -1,8 +1,11 @@
-const express = require('express')
-const app = express()
+//Import
+const http = require('http');
+const app = require('./app');
+const server = http.createServer(app);
+const env = require("dotenv");
+env.config({ path: 'config.env' });
+const PORT = process.env.port || 5000;
 
-app.get('/', function (req, res) {
-  res.send('Hello World')
-})
-
-app.listen(3000)
+server.listen(PORT, () => {
+    console.log("server up at localhost" + " " + PORT);
+  });
