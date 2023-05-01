@@ -485,11 +485,11 @@ const updateCoverageArea = async (req, res) => {
 const updateBusinessPackages = async (req, res) => {
   try {
     const businessId = req.params.id;
-
-    const business_packages = req.body.business_packages;
-    const business = await Business.findByIdAndUpdate(
-      businessId,
-      { business_packages },
+    const package_id = req.body.package_id;
+    const price = req.body.price;
+    const business = await Business.findOneAndUpdate(
+      {_id:businessId,'business_packages._id':package_id},
+      { 'business_packages.price': price},
       {
         new: true,
       }
