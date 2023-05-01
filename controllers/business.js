@@ -487,25 +487,33 @@ const updateBusinessPackages = async (req, res) => {
     const businessId = req.params.id;
     const package_id = req.body.package_id;
     const price = req.body.price;
-    const business = await Business.findOneAndUpdate(
-      {_id:businessId,'business_packages._id':package_id},
-      { 'business_packages.price': price},
-      {
-        new: true,
-      }
+
+    // Find the business document using the businessId
+    const business = await Business.findById(businessId);
+
+    // Find the business package within the document using the package_id
+    const package = business.business_packages.find(
+      (p) => p._id.toString() === package_id.toString()
     );
-    if (!business) {
-      return res.status(404).json({ error: "Business not found" });
+
+    if (!package) {
+      return res.status(404).json({ error: "Package not found" });
     }
+
+    // Update the price of the business package
+    package.price = price;
+
+    // Save the updated business document
+    await business.save();
+
     res.json({
-      message: "Business Packages updated successfully",
+      message: "Business Package updated successfully",
       success: true,
     });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update Business Packages" });
+    res.status(500).json({ error: "Failed to update Business Package" });
   }
 };
-
 const updateBusinessDisplayPicture = async (req, res) => {
   try {
     const businessId = req.params.id;
