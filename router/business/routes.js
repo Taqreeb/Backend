@@ -13,6 +13,20 @@ router.post(
   isAuthorizedUser("vendor"),
   businessController.addBusiness
 );
+router.post(
+  "/businesses/:id/addAlbums",
+  isAuthenticatedUser,
+  isAuthorizedUser("vendor"),
+  businessController.addNewAlbum
+);
+
+router.post(
+  "/business/:id/albums/:albumId/images",
+  isAuthenticatedUser,
+  isAuthorizedUser("vendor"),
+  businessController.addImageToAlbum
+);
+
 router.get(
   "/businesses",
   isAuthenticatedUser,
@@ -20,6 +34,13 @@ router.get(
   businessController.getSpecificVendorBusiness
 );
 router.get("/businesses/:id", businessController.getSpecificBusiness);
+
+router.get(
+  "/business/:id/album/:albumId",
+  isAuthenticatedUser,
+  isAuthorizedUser("vendor"),
+  businessController.getSpecificBusinessAlbum
+);
 
 router.delete(
   "/specificbusiness/:id",
@@ -32,6 +53,21 @@ router.delete(
   isAuthenticatedUser,
   isAuthorizedUser("vendor"),
   businessController.deleteVendorSpecificBusinesses
+);
+
+router.delete(
+  "/business/:id/albums/:albumId",
+  isAuthenticatedUser,
+  isAuthorizedUser("vendor"),
+  businessController.deleteAlbum
+);
+
+
+router.delete(
+  "/business/:id/albums/:albumId/images/:imageId",
+  isAuthenticatedUser,
+  isAuthorizedUser("vendor"),
+  businessController.deleteImageFromAlbum
 );
 
 //update Business
@@ -127,4 +163,19 @@ router.put(
   isAuthorizedUser("vendor"),
   businessController.updateBusinessPackages
 );
+
+router.put(
+  "/business/:id/albumName/:albumId",
+  isAuthenticatedUser,
+  isAuthorizedUser("vendor"),
+  businessController.updateAlbumName
+);
+
+router.put(
+  "/business/:id/albumDescription/:albumId",
+  isAuthenticatedUser,
+  isAuthorizedUser("vendor"),
+  businessController.updateAlbumDescription
+);
+
 module.exports = router;

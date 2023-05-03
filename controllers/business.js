@@ -114,6 +114,102 @@ const addBusiness = async (req, res) => {
   }
 };
 
+//add a new album
+const addNewAlbum = async (req, res) => {
+  try {
+    const businessId = req.params.id;
+    const business_albums = req.body.business_albums;
+
+    if (!business_albums) {
+      return res.status(422).json({ error: "Please add an album" });
+    }
+
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Business not found" });
+    }
+
+    const newAlbum = [];
+
+    for (const album of business_albums) {
+      const imagesBuffer = [];
+      for (const image of album.images) {
+        const result = await cloudinary.uploader.upload(image, {
+          folder: "albumImages",
+        });
+        imagesBuffer.push({
+          public_id: result.public_id,
+          url: result.secure_url,
+        });
+      }
+      newAlbum.push({
+        album_name: album.name,
+        description: album.description,
+        images: imagesBuffer,
+      });
+    }
+    if (business.business_albums.length === 0) {
+      business.business_albums = newAlbum;
+    } else {
+      business.business_albums.push(...newAlbum);
+    }
+
+    await business.save();
+    return res
+      .status(201)
+      .json({ message: "Album added successfully", success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//add a new image to album
+const addImageToAlbum = async (req, res) => {
+  try {
+    const albumId = req.params.albumId;
+    const businessId = req.params.id;
+    const image = req.body.image;
+    
+    if (!image) {
+      return res.status(422).json({ error: "Please add an image",image:image });
+    }
+
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Business not found" });
+    }
+    const albumIndex = business.business_albums.findIndex(
+      (album) => album._id.toString() === albumId
+    );
+    if (albumIndex === -1) {
+      return res.status(404).json({ error: "Album not found" });
+    }
+
+    const result = await cloudinary.uploader.upload(image, {
+      folder: "albumImages",
+    });
+
+    const newImage = {
+      public_id: result.public_id,
+      url: result.secure_url,
+    };
+    business.business_albums[albumIndex].images.push(newImage);
+
+    await business.save();
+    return res
+      .status(201)
+      .json({ message: "Image added successfully", success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+
 // Get a specific business by ID
 const getSpecificBusiness = async (req, res) => {
   try {
@@ -122,6 +218,25 @@ const getSpecificBusiness = async (req, res) => {
       return res.status(404).json({ error: "Business not found" });
     }
     res.json({ business, success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Get a specific business ALbum
+const getSpecificBusinessAlbum = async (req, res) => {
+  try {
+    const businessId = req.params.id
+    const albumId = req.params.albumId
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res.status(404).json({ error: "Business not found" });
+    }
+    const album = business.business_albums.find(album => album._id.toString() === albumId);
+    if (!album) {
+      return res.status(404).json({ message: 'Album not found' });
+    }
+   return res.json({ album:album, success: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -480,18 +595,15 @@ const updateCoverageArea = async (req, res) => {
   }
 };
 
-
-
 const updateBusinessPackages = async (req, res) => {
   try {
     const businessId = req.params.id;
     const package_id = req.body.package_id;
     const price = req.body.price;
+    const description = req.body.description;
 
-    // Find the business document using the businessId
     const business = await Business.findById(businessId);
 
-    // Find the business package within the document using the package_id
     const package = business.business_packages.find(
       (p) => p._id.toString() === package_id.toString()
     );
@@ -499,11 +611,9 @@ const updateBusinessPackages = async (req, res) => {
     if (!package) {
       return res.status(404).json({ error: "Package not found" });
     }
-
-    // Update the price of the business package
+    package.description = description;
     package.price = price;
 
-    // Save the updated business document
     await business.save();
 
     res.json({
@@ -514,6 +624,61 @@ const updateBusinessPackages = async (req, res) => {
     res.status(500).json({ error: "Failed to update Business Package" });
   }
 };
+
+const updateAlbumName = async (req, res) => {
+  try {
+    const businessId = req.params.id;
+    const albumId = req.params.albumId
+    const name = req.body.name
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res.status(404).json({ error: "Business not found" });
+    }
+    const album = business.business_albums.find(album => album._id.toString() === albumId);
+    if (!album) {
+      return res.status(404).json({ message: 'Album not found' });
+    }
+  
+    album.album_name = name;
+
+    await business.save();
+
+    res.json({
+      message: "Album Name updated successfully",
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update Album Name" });
+  }
+};
+
+const updateAlbumDescription= async (req, res) => {
+  try {
+    const businessId = req.params.id;
+    const albumId = req.params.albumId
+    const description = req.body.description
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res.status(404).json({ error: "Business not found" });
+    }
+    const album = business.business_albums.find(album => album._id.toString() === albumId);
+    if (!album) {
+      return res.status(404).json({ message: 'Album not found' });
+    }
+  
+    album.description = description;
+
+    await business.save();
+
+    res.json({
+      message: "Album Description updated successfully",
+      success: true,
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update Album Description" });
+  }
+};
+
 const updateBusinessDisplayPicture = async (req, res) => {
   try {
     const businessId = req.params.id;
@@ -539,74 +704,6 @@ const updateBusinessDisplayPicture = async (req, res) => {
     res.status(500).json({ error: "Failed to update display picture" });
   }
 };
-// // Update a specific business by ID
-// const UpdateSpecificBusiness = async (req, res) => {
-//   try {
-//     const businessId = req.params.id;
-
-//     const business = await Business.findById(businessId);
-//     if (!business) {
-//       return res.status(404).json({ error: "Business not found" });
-//     }
-//     if (business.business_type === "venue") {
-//       business.booked_dates = req.body.booked_dates || business.booked_dates;
-//       (business.business_albums =
-//         req.body.business_albums || business.business_albums),
-//         (business.business_packages =
-//           req.body.business_packages || business.business_packages),
-//         (business.business_name =
-//           req.body.business_name || business.business_name),
-//         (business.business_facebook_url =
-//           req.body.business_facebook_url || business.business_facebook_url),
-//         (business.business_instagram_url =
-//           req.body.business_instagram_url || business.business_instagram_url),
-//         (business.business_youtube_url =
-//           req.body.business_youtube_url || business.business_youtube_url),
-//         (business.business_email =
-//           req.body.business_email || business.business_email),
-//         (business.business_phone_number =
-//           req.body.business_phone_number || business.business_phone_number);
-//       business.estimated_price =
-//         req.body.estimated_price || business.estimated_price;
-//       (business.venue_coverage_area =
-//         req.body.venue_coverage_area || business.venue_coverage_area),
-//         (business.venue_persons_capacity =
-//           req.body.venue_persons_capacity || business.venue_persons_capacity);
-//       business.business_display_picture =
-//         req.body.business_display_picture || business.business_display_picture;
-
-//       const updatedBusiness = await business.save();
-//       return res.status(200).json(updatedBusiness);
-//     } else {
-//       business.booked_dates = req.body.booked_dates || business.booked_dates;
-//       (business.business_albums =
-//         req.body.business_albums || business.business_albums),
-//         (business.business_packages =
-//           req.body.business_packages || business.business_packages),
-//         (business.business_name =
-//           req.body.business_name || business.business_name),
-//         (business.business_facebook_url =
-//           req.body.business_facebook_url || business.business_facebook_url),
-//         (business.business_instagram_url =
-//           req.body.business_instagram_url || business.business_instagram_url),
-//         (business.business_youtube_url =
-//           req.body.business_youtube_url || business.business_youtube_url),
-//         (business.business_email =
-//           req.body.business_email || business.business_email),
-//         (business.business_phone_number =
-//           req.body.business_phone_number || business.business_phone_number);
-//       business.estimated_price =
-//         req.body.estimated_price || business.estimated_price;
-//       business.business_display_picture =
-//         req.body.business_display_picture || business.business_display_picture;
-
-//       const updatedBusiness = await business.save();
-//       return res.status(200).json(updatedBusiness);
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// };
 
 // Delete a specific business by ID
 const deleteSpecificBusiness = async (req, res) => {
@@ -621,6 +718,7 @@ const deleteSpecificBusiness = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 // Delete all businesses of certain vendor
 const deleteVendorSpecificBusinesses = async (req, res) => {
@@ -639,9 +737,84 @@ const deleteVendorSpecificBusinesses = async (req, res) => {
   }
 };
 
+//delete an  album
+const deleteAlbum = async (req, res) => {
+  try {
+    const albumId = req.params.albumId;
+    const businessId = req.params.id;
+
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Business not found" });
+    }
+    const album = business.business_albums.id(albumId);
+
+    if (!album) {
+      return res.status(404).json({ message: "Album not found" });
+    }
+
+    album.remove();
+    
+
+    await business.save();
+    return res
+      .status(201)
+      .json({ message: "Album deleted successfully", success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+//delete an image to album
+const deleteImageFromAlbum = async (req, res) => {
+  try {
+    const businessId = req.params.id;
+    const albumId = req.params.albumId;
+    const imageId = req.params.imageId;
+
+    const business = await Business.findById(businessId);
+    if (!business) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Business not found" });
+    }
+    const album = business.business_albums.id(albumId);
+
+    if (!album) {
+      return res.status(404).json({ message: "Album not found" });
+    }
+
+    const image = album.images.id(imageId);
+
+    if (!image) {
+      return res.status(404).json({ message: "Image not found" });
+    }
+    const imgId = image.public_id;
+    if (imgId) {
+      await cloudinary.uploader.destroy(imgId);
+    }
+    // Delete the image
+    image.remove();
+
+    await business.save();
+    return res
+      .status(201)
+      .json({ message: "Image deleted successfully", success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 module.exports = {
   addBusiness,
+  addNewAlbum,
+  addImageToAlbum,
   getSpecificBusiness,
+  getSpecificBusinessAlbum,
+  updateAlbumName,
+  updateAlbumDescription,
   updateBusinessName,
   updateBusinessDescription,
   updateBusinessEmail,
@@ -661,4 +834,7 @@ module.exports = {
   deleteSpecificBusiness,
   getSpecificVendorBusiness,
   deleteVendorSpecificBusinesses,
+  deleteAlbum,
+  deleteImageFromAlbum,
+  
 };
