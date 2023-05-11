@@ -157,10 +157,6 @@ const updateUserProfilePicture = async (req, res) => {
   try {
     const userId = req.userId;
     const profile_picture = req.body.profile_picture;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
     const user = await User.findByIdAndUpdate(
       userId,
       { profile_picture },
@@ -173,7 +169,7 @@ const updateUserProfilePicture = async (req, res) => {
     }
     res.json({ user, message: "profile picture updated successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to update profile picture" });
+    res.status(500).json({ error: "Failed to update profile picture"});
   }
 };
 
