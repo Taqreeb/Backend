@@ -188,10 +188,6 @@ const updateAdminProfilePicture = async (req, res) => {
   try {
     const userId = req.userId;
     const profile_picture = req.body.profile_picture;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
     const user = await User.findByIdAndUpdate(
       userId,
       { profile_picture },
