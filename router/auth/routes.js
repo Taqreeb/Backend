@@ -7,4 +7,7 @@ const router = express.Router();
 router.post('/login', authController.login);
 router.post('/signup', Validation.loginValidation, authController.signup);
 router.get("/:id/verify/:token", authController.verifyEmailToken);
+router.post("/requestPasswordReset", authController.passwordRecoveryEmail);
+router.post("/resetPassword", authController.resetPassword);
+  
 module.exports = router;

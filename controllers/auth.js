@@ -1,10 +1,12 @@
 const User = require("../models/userSchema");
 const Token = require("../models/emailTokenSchema");
 const crypto = require("crypto");
-const sendEmail = require("../utils/sendEmail");
+const sendEmailVerification = require("../utils/sendEmailForVerification");
+const sendEmailForgotPassword = require("../utils/sendEmailForgotPassword");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { validationResult } = require("express-validator");
+const PasswordReset = require("../models/passwordResetSchema");
 require("dotenv").config();
 
 const signup = async (req, res) => {
@@ -48,14 +50,12 @@ const signup = async (req, res) => {
         token: crypto.randomBytes(32).toString("hex"),
       }).save();
       const url = `${process.env.BASE_URL}/users/${user._id}/verify/${token.token}`;
-      await sendEmail(user.Email, "Verify Email", url);
+      await sendEmailVerification(user.Email, "Verify Email", url);
 
-      res
-        .status(201)
-        .send({
-          message: "An Email has been sent to your account please verify",
-          success: true,
-        });
+      res.status(201).send({
+        message: "An Email has been sent to your account please verify",
+        success: true,
+      });
     }
   } catch (error) {
     console.log(error);
@@ -84,12 +84,14 @@ const login = async (req, res) => {
             token: crypto.randomBytes(32).toString("hex"),
           }).save();
           const url = `${process.env.BASE_URL}/users/${userLogin._id}/verify/${token.token}`;
-          await sendEmail(userLogin.Email, "Verify Email", url);
+          await sendEmailVerification(userLogin.Email, "Verify Email", url);
         }
 
         return res
           .status(400)
-          .send({ message: "An Email has been sent to your account please verify"});
+          .send({
+            message: "An Email has been sent to your account please verify",
+          });
       }
       const authtoken = jwt.sign(
         { _id: userLogin._id },
@@ -142,4 +144,59 @@ const verifyEmailToken = async (req, res) => {
   }
 };
 
-module.exports = { login, signup, verifyEmailToken };
+const passwordRecoveryEmail = async (req, res) => {
+  try{
+   const {Email} = req.body
+   const emailExist = await User.findOne({Email:Email})
+   if(!emailExist){
+    return res.status(400).send({status:"FAILED",message:"No account with supplied email exists!"})
+   }
+   if(!emailExist.verified){
+    return res.status(400).send({status:"FAILED",message:"Email hasn't been verified yet."})
+   }
+   sendEmailForgotPassword(emailExist,res);
+  }
+  catch(error){
+    console.log(error);
+    res.status(500).send({status:"FAILED",message:"An error occurred while checking for existing user"})
+  }
+};
+
+const resetPassword = async (req,res)=>{
+  try{
+   let {userId,resetString,newPassword} = req.body;
+   const result = await PasswordReset.find({userId:userId});
+   if(result.length>0){
+    const hashedResetString = result[0].resetString;
+    const expiresAt = result[0].expiresAt;
+    if(expiresAt<Date.now()){
+      const deletePassword = await PasswordReset.deleteOne({userId:userId})
+      if(!deletePassword){
+        return res.status(400).send({status:"FAILED",message:"Clearing password reset record failed."})
+      }
+      return res.status(400).send({status:"FAILED",message:"Password reset link expired."})
+    }
+    const isMatch = await bcrypt.compare(resetString,hashedResetString);
+    if(!isMatch){
+     return res.status(400).send({status:"FAILED",message:"Invalid password reset details passed."})
+    }
+    const salt = await bcrypt.genSalt(10);
+    const secPass = await bcrypt.hash(newPassword, salt);
+    const updatePassword = await User.updateOne({_id:userId},{Password:secPass},{new:true});
+    if(!updatePassword){
+      return res.status(400).send({status:"FAILED",message:"Updating user password failed."})
+    }
+    await PasswordReset.deleteOne({userId:userId})
+    res.status(200).send({status:"SUCCESS",message:"Password has been reset successfully."})
+   }
+   else{
+    return res.status(400).send({status:"FAILED",message:"Password reset request not found."})
+   }
+  }
+  catch(error){
+    console.log(error);
+  }
+}
+
+
+module.exports = { login, signup, verifyEmailToken,passwordRecoveryEmail,resetPassword };
